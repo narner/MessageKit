@@ -28,10 +28,7 @@ extension CameraInputBarAccessoryViewDelegate {
         super.init(frame: frame)
         configure()
     }
-    
-    
 
-    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -42,14 +39,22 @@ extension CameraInputBarAccessoryViewDelegate {
         return manager
     }()
     
-    func configure(){
-        let camera = makeButton(named: "camera")
+    func configure() {
+        let camera = makeButton(named: "camera", image: "camera.fill")
+        let library = makeButton(named: "library", image: "photo.fill")
+
         camera.tintColor = .darkGray
+        library.tintColor = .darkGray
+        
         camera.onTouchUpInside { (item) in
-            self.showImagePickerControllerActionSheet()
+            self.showImagePickerController(sourceType: .camera)
         }
-        self.setLeftStackViewWidthConstant(to: 35, animated: true)
-        self.setStackViewItems([camera], forStack: .left, animated: false)
+        library.onTouchUpInside { (item) in
+            self.showImagePickerController(sourceType: .photoLibrary)
+        }
+        
+        self.setLeftStackViewWidthConstant(to: 65, animated: true)
+        self.setStackViewItems([camera, library], forStack: .left, animated: false)
         self.inputPlugins = [attachmentManager]
 
     }
@@ -57,24 +62,20 @@ extension CameraInputBarAccessoryViewDelegate {
     override func didSelectSendButton() {
         
         if attachmentManager.attachments.count > 0 {
-            
             (delegate as? CameraInputBarAccessoryViewDelegate)?.inputBar(self, didPressSendButtonWith: attachmentManager.attachments)
         }
         else {
-            
             delegate?.inputBar(self, didPressSendButtonWith: inputTextView.text)
         }
     }
     
-    
-    
-    private func makeButton(named: String) -> InputBarButtonItem {
+    private func makeButton(named: String, image: String) -> InputBarButtonItem {
         return InputBarButtonItem()
             .configure {
-                $0.spacing = .fixed(10)
+                $0.spacing = .flexible
                    
                 if #available(iOS 13.0, *) {
-                    $0.image = UIImage(systemName: "camera.fill")?.withRenderingMode(.alwaysTemplate)
+                    $0.image = UIImage(systemName: image)?.withRenderingMode(.alwaysTemplate)
                 } else {
                     $0.image = UIImage(named: named)
                 }
@@ -93,24 +94,7 @@ extension CameraInputBarAccessoryViewDelegate {
 
 
 
-
 extension CameraInputBarAccessoryView : UIImagePickerControllerDelegate , UINavigationControllerDelegate {
-    
-    @objc  func showImagePickerControllerActionSheet()  {
-        
-
-        let photoLibraryAction = UIAlertAction(title: "Choose From Library", style: .default) { (action) in
-            self.showImagePickerController(sourceType: .photoLibrary)
-        }
-        
-        let cameraAction = UIAlertAction(title: "Take From Camera", style: .default) { (action) in
-            self.showImagePickerController(sourceType: .camera)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .default , handler: nil)
-        
-        AlertService.showAlert(style: .actionSheet, title: "Choose Your Image", message: nil, actions: [photoLibraryAction, cameraAction , cancelAction], completion: nil)
-    }
     
     func showImagePickerController(sourceType: UIImagePickerController.SourceType){
         
@@ -177,7 +161,6 @@ extension CameraInputBarAccessoryView: AttachmentManagerDelegate {
     }
     
     func attachmentManager(_ manager: AttachmentManager, didSelectAddAttachmentAt index: Int) {
-        self.showImagePickerControllerActionSheet()
     }
     
     // MARK: - AttachmentManagerDelegate Helper
