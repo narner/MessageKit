@@ -41,7 +41,8 @@ extension CameraInputBarAccessoryViewDelegate {
     
     func configure() {
         let camera = makeButton(named: "camera", image: "camera.fill")
-        let library = makeButton(named: "library", image: "photo.fill")
+        //TODO: Add photo image in resources
+        let library = makeButton(named: "library", image: "camera.fill")
 
         camera.tintColor = .darkGray
         library.tintColor = .darkGray
